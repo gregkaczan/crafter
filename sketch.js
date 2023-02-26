@@ -1,6 +1,5 @@
 // Declare variables
 let pixelSize = 13; // Size of each grid cell
-let currentColor = "#000000"; // Default color to draw with
 let eraserColor = "#FFFFFF";
 let isDrawing = false; // Flag to indicate if user is currently drawing
 let colors = [
@@ -12,6 +11,7 @@ let colors = [
   "#F5DEB3", // Fabric
   "#FFFFFF", // Eraser
 ]; // Array of available colors
+let currentColor = colors[0]; // Default color to draw with
 let buttonWidth = 50; // Width of color selector and reset buttons
 let buttonHeight = 50; // Height of color selector and reset buttons
 
