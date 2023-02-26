@@ -11,6 +11,7 @@
       margin: 0;
     }
   </style>
+  <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
   <script src="lib/p5.min.js"></script>
   <!-- <script src="../addons/p5.sound.js"></script> -->
   <script src="sketch.js"></script>
@@ -19,6 +20,11 @@
 <body>
   <main>
   </main>
+  <button onclick="clearCanvas()">clear canvas</button>
+  <button onclick="addExample()">add object</button>
+  <input onchange="setObject(event)"/>
+  <button onclick="train()">train</button>
+  <button onclick="classify()">classify</button>
 </body>
 
 </html>

@@ -14,23 +14,32 @@ let colors = [
 let currentColor = colors[0]; // Default color to draw with
 let buttonWidth = 50; // Width of color selector and reset buttons
 let buttonHeight = 50; // Height of color selector and reset buttons
+let pixelBrain;
+let currentLabel = "";
 
 function setup() {
   // Create canvas and set its dimensions
   createCanvas(600, 400);
+
+  // Create grid by calculating number of rows and columns based on canvas dimensions and pixel size
+  let numRows = floor(height / pixelSize);
+  let numCols = floor(width / pixelSize);
+
+  let options = {
+    task: 'classification',
+    debug: true
+  }
+  pixelBrain = ml5.neuralNetwork(options);
   
   document.querySelector('canvas').addEventListener('contextmenu', e => e.preventDefault());
   
   slider = createSlider(5, 20, pixelSize);
-  slider.position(10, height + 20);
+  //slider.position(10, height + 20);
   slider.input(resetGrid);
 
   // Set color mode to use RGB values (0-255)
   colorMode(RGB, 255);
 
-  // Create grid by calculating number of rows and columns based on canvas dimensions and pixel size
-  let numRows = floor(height / pixelSize);
-  let numCols = floor(width / pixelSize);
 
   // Create 2D array to store color values for each cell in the grid
   grid = new Array(numRows);
@@ -53,22 +62,59 @@ function setup() {
       currentColor = colors[i];
     });
   }
-
-  // Create reset button at bottom left of canvas
-  let resetButtonX = 20;
-  let resetButtonY = height - buttonHeight;
-  let resetButton = createButton("Reset");
-  resetButton.position(resetButtonX, resetButtonY  +20);
-  resetButton.size(buttonWidth, buttonHeight);
-  resetButton.mousePressed(() => {
-    // Reset grid to default colors
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
-        grid[i][j] = color(255);
-      }
-    }
-  });
 }
+
+function gotResults(error, results) {
+  if (error) {
+    return;
+  }  
+  console.log(results[0]);
+}
+
+function classify() {
+  pixelBrain.classify(getInputs(), gotResults);  
+}
+
+function train() {
+  pixelBrain.normalizeData();
+  pixelBrain.train(console.log, { epochs: 500 });
+}
+
+function clearCanvas() {
+  // Reset grid to default colors
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      grid[i][j] = color(255);
+    }
+  }
+}
+
+function setObject(ev) {
+  currentLabel = ev.srcElement.value;
+}
+
+function getInputs() {
+  let inputs = [];
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      let val = grid[i][j].toString() === "rgba(255,255,255,1)" ? 0 : 255;
+      val += Math.random();
+      inputs.push(val);
+    }
+  }
+
+  return inputs;
+}
+
+function addExample() {
+  let target = [currentLabel];
+  console.log("Adding example: " + currentLabel);
+  pixelBrain.addData(getInputs(), target);
+
+  clearCanvas();
+}
+
+
 
 function resetGrid() {
   pixelSize = slider.value();
